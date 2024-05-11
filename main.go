@@ -33,7 +33,7 @@ import (
 	"sqlproxy/web"
 )
 
-var configFile = flag.String("config", "/etc/ks.yaml", "kingshard config file")
+var configFile = flag.String("config", "./etc/sqlproxy.yaml", "kingshard config file")
 var logLevel = flag.String("log-level", "", "log level [debug|info|warn|error], default error")
 var version = flag.Bool("v", false, "the version of kingshard")
 

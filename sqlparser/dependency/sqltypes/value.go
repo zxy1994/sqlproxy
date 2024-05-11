@@ -21,6 +21,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"sqlproxy/core/golog"
 	"strconv"
 
 	"sqlproxy/sqlparser/dependency/bytes2"
@@ -318,7 +319,7 @@ func (v *Value) UnmarshalJSON(b []byte) error {
 	return err
 }
 
-func encodeBytesSQL(val []byte, b BinWriter) {
+/*func encodeBytesSQL(val []byte, b BinWriter) {
 	buf := &bytes2.Buffer{}
 	buf.WriteByte('\'')
 	for _, ch := range val {
@@ -331,6 +332,25 @@ func encodeBytesSQL(val []byte, b BinWriter) {
 	}
 	buf.WriteByte('\'')
 	b.Write(buf.Bytes())
+}*/
+
+func encodeBytesSQL(val []byte, b BinWriter) {
+	buf := &bytes2.Buffer{}
+	buf.WriteByte('\'')
+	for _, ch := range val {
+		if ch == '\r' || ch == '\n' {
+			// 原样输出 \r 和 \n
+			buf.WriteByte(ch)
+		} else if encodedChar := SQLEncodeMap[ch]; encodedChar == DontEscape {
+			buf.WriteByte(ch)
+		} else {
+			// buf.WriteByte('\\')
+			buf.WriteByte(encodedChar)
+		}
+	}
+	buf.WriteByte('\'')
+	b.Write(buf.Bytes())
+	golog.Debug("sqlparser", "encodeBytesSQL-result", "encodeBytesSQL", 0, buf.String())
 }
 
 func encodeBytesASCII(val []byte, b BinWriter) {
